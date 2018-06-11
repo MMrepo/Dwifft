@@ -99,7 +99,23 @@ public enum Dwifft {
         guard case let .done(accum) = result else { fatalError("unreachable code") }
         return accum.1 + accum.0
     }
-
+  
+  public static func diff2<Value: Equatable>(_ lhs: [Value], _ rhs: [Value]) -> ([DiffStep<Value>], [DiffStep<Value>]) {
+    if lhs.isEmpty {
+      return (rhs.enumerated().map(DiffStep.insert), [])
+    } else if rhs.isEmpty {
+      return ([], lhs.enumerated().map(DiffStep.delete).reversed())
+    }
+    
+    let table = MemoizedSequenceComparison.buildTable(lhs, rhs)
+    var result = diffInternal(table, lhs, rhs, lhs.count, rhs.count, ([], []))
+    while case let .call(f) = result {
+      result = f()
+    }
+    guard case let .done(accum) = result else { fatalError("unreachable code") }
+    return accum
+  }
+  
     /// Applies a diff to an array. The following should always be true:
     /// Given `x: [T], y: [T]`, `Dwifft.apply(Dwifft.diff(x, y), toArray: x) == y`
     ///
