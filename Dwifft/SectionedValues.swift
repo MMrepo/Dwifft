@@ -23,7 +23,7 @@ public struct SectionedValues<Section: Equatable, Value: Equatable>: Equatable {
     }
 
     /// The underlying tuples contained in the receiver
-    public let sectionsAndValues: [(Section, [Value])]
+    public var sectionsAndValues: [(Section, [Value])]
 
     internal var sections: [Section] { get { return self.sectionsAndValues.map { $0.0 } } }
     internal subscript(i: Int) -> (Section, [Value]) {
